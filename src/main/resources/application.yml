@@ -22,7 +22,7 @@ spring:
     level:
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-      com.picflow: DEBUG
+      com.example.picflow: DEBUG
 
 jwt:
   secret: ${JWT_SECRET:picflow-secret-key-for-development-only-do-not-use-in-production}
@@ -30,22 +30,6 @@ jwt:
 
 server:
   port: 8080
-
----
-spring:
-  config:
-    activate:
-      on-profile: local
-
-  h2:
-    console:
-      enabled: true
-
-  datasource:
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
 
 ---
 spring:
@@ -60,4 +44,4 @@ spring:
 
   logging:
     level:
-      com.picflow: INFO
+      com.example.picflow: INFO
