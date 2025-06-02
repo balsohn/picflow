@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @Slf4j
 @RestControllerAdvice
@@ -94,5 +95,21 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error: ", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("서버 내부 오류가 발생했습니다."));
+    }
+
+    // 파일 업로드 관련 예외
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<ApiResponse<Void>> handleFileUpload(FileUploadException e) {
+        log.error("FileUploadException: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage()));
+    }
+
+    // 파일 크기 초과 예외
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxSizeException(MaxUploadSizeExceededException e) {
+        log.error("MaxUploadSizeExceededException: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(ApiResponse.error("파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다."));
     }
 }
