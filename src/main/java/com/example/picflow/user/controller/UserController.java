@@ -83,6 +83,7 @@ public class UserController {
     }
 
     // 모든 사용자 조회
+    @GetMapping
     public ResponseEntity<ApiResponse<UserPageResponse>>  getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

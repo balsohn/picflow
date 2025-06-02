@@ -11,7 +11,7 @@ import java.util.List;
 public class UserPageResponse {
     private List<UserResponse> users;
     private int currentPage;
-    private int totalPage;
+    private int totalPages;
     private long totalElements;
     private int pageSize;
     private boolean first;
