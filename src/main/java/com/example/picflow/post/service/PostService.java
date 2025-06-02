@@ -113,7 +113,7 @@ public class PostService {
                 .orElseThrow(PostNotFoundException::new);
 
         // 작성자 확인
-        if (post.isAuthor(user)) {
+        if (!post.isAuthor(user)) {
             throw new UnauthorizedException("게시물을 삭제할 권한이 없습니다.");
         }
 
