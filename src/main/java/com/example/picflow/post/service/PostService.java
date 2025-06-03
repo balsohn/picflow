@@ -46,8 +46,8 @@ public class PostService {
         return PostResponse.from(savedPost);
     }
 
-    public PostResponse getPost(Long userId) {
-        Post post = postRepository.findById(userId)
+    public PostResponse getPost(Long postId) {
+        Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
         return PostResponse.from(post);
     }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "follows",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"follower_id, following_id"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {"follower_id", "following_id"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Follow extends BaseTimeEntity {
