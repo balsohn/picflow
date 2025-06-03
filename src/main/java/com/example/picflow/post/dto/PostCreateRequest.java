@@ -17,4 +17,8 @@ public class PostCreateRequest {
     private String content;
 
     private String imageUrl;
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
