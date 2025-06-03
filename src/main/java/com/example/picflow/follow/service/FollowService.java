@@ -30,7 +30,7 @@ public class FollowService {
             throw new IllegalArgumentException("자기 자신을 팔로우할 수 없습니다.");
         }
 
-        User follower = userRepository.findByIdAndDeletedFalse(followingId)
+        User follower = userRepository.findByIdAndDeletedFalse(followerId)
                 .orElseThrow(UserNotFoundException::new);
 
         User following = userRepository.findByIdAndDeletedFalse(followingId)

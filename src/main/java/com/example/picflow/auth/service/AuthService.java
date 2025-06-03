@@ -41,7 +41,7 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         // 사용자 조회
-        User user = userRepository.findByEmailAndDeleteFalse(request.getEmail())
+        User user = userRepository.findByEmailAndDeletedFalse(request.getEmail())
                 .orElseThrow(UserNotFoundException::new);
 
         // 비밀번호 확인

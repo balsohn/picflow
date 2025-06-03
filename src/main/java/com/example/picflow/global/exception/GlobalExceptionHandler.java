@@ -8,11 +8,33 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    // 정적 리소스 관련 예외 (404 처리)
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(
+            NoResourceFoundException e, HttpServletRequest request) {
+
+        String requestURI = request.getRequestURI();
+
+        // API 경로가 아닌 경우 (정적 리소스 요청)
+        if (!requestURI.startsWith("/api/")) {
+            log.warn("정적 리소스를 찾을 수 없음: {}", requestURI);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("요청한 리소스를 찾을 수 없습니다."));
+        }
+
+        // API 경로인 경우
+        log.error("API 엔드포인트를 찾을 수 없음: {}", requestURI);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("API 엔드포인트를 찾을 수 없습니다."));
+    }
 
     // 사용자 관련 예외
     @ExceptionHandler(UserNotFoundException.class)
@@ -91,25 +113,19 @@ public class GlobalExceptionHandler {
 
     // 예상치 못한 예외
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception e) {
-        log.error("Unexpected error: ", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("서버 내부 오류가 발생했습니다."));
-    }
+    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
 
-    // 파일 업로드 관련 예외
-    @ExceptionHandler(FileUploadException.class)
-    public ResponseEntity<ApiResponse<Void>> handleFileUpload(FileUploadException e) {
-        log.error("FileUploadException: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(e.getMessage()));
-    }
+        // API 요청인 경우만 에러 로그
+        if (requestURI.startsWith("/api/")) {
+            log.error("Unexpected API error on {}: ", requestURI, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("서버 내부 오류가 발생했습니다."));
+        }
 
-    // 파일 크기 초과 예외
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMaxSizeException(MaxUploadSizeExceededException e) {
-        log.error("MaxUploadSizeExceededException: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                .body(ApiResponse.error("파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다."));
+        // 정적 리소스 요청은 간단히 처리
+        log.warn("Static resource error: {}", requestURI);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("요청한 리소스를 찾을 수 없습니다."));
     }
 }

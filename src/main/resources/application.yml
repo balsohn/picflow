@@ -1,26 +1,29 @@
-# 기존 application.yml 파일에 다음 내용을 추가하세요
-
 spring:
   profiles:
     active: local
 
   datasource:
-    url: jdbc:mysql://localhost:3306/picflow?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:password}
+    # MariaDB 연결 URL (MySQL 드라이버 사용 가능)
+    url: jdbc:mysql://localhost:3306/picflow?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: create  # 개발 시에는 create, 운영 시에는 validate
+      ddl-auto: update  # create 대신 update 사용 (기존 데이터 보존)
     show-sql: true
     format-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        # MariaDB에서도 MySQL 방언 사용 가능
+        dialect: org.hibernate.dialect.MariaDBDialect
         default_batch_fetch_size: 100
+        # SQL 생성 전략
+        id:
+          new_generator_mappings: false
 
-  # 🆕 파일 업로드 설정 추가
+  # 파일 업로드 설정
   servlet:
     multipart:
       enabled: true
@@ -33,12 +36,14 @@ spring:
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
       com.example.picflow: DEBUG
+      # MariaDB 드라이버 로깅
+      org.mariadb.jdbc: DEBUG
 
 jwt:
-  secret: ${JWT_SECRET:picflow-secret-key-for-development-only-do-not-use-in-production}
+  secret: picflow-secret-key-for-development-only-do-not-use-in-production-please-change-this-to-a-longer-and-more-secure-key
   expiration: 86400000  # 24시간 (밀리초)
 
-# 🆕 파일 저장 설정 추가
+# 파일 저장 설정
 file:
   upload-dir: ${FILE_UPLOAD_DIR:./uploads}
 
