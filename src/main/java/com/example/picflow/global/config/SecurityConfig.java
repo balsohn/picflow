@@ -33,6 +33,15 @@ public class SecurityConfig {
                         // 인증 없이 접근 가능한 경로
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/search/**").permitAll() // 검색은 누구나 가능
+                        .requestMatchers("/api/posts").permitAll() // 전체 게시물 조회는 누구나 가능
+                        .requestMatchers("/api/posts/{postId}").permitAll() // 특정 게시물 조회는 누구나 가능
+                        .requestMatchers("/api/posts/search/**").permitAll() // 게시물 검색은 누구나 가능
+
+                        // 정적 리소스 (혹시 모를 경우를 대비)
+                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+
+                        // OPTIONS 요청 허용 (CORS preflight)
+                        .requestMatchers("OPTIONS", "/**").permitAll()
 
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
