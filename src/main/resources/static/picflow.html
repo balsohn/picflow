@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Picflow - 사진이 흐르는 피드</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"> <!-- 위에서 작성한 CSS 파일 -->
+</head>
+<body>
+<!-- 로딩 스피너 -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+</div>
+
+<!-- 토스트 알림 -->
+<div class="toast" id="toast"></div>
+
+<!-- 초기 로그인 화면 -->
+<div class="auth-container" id="authContainer">
+  <div class="auth-box">
+    <div class="auth-logo">Picflow</div>
+    <p class="auth-subtitle">사진이 흐르는 소셜 플랫폼</p>
+    <button class="form-button" onclick="showModal('loginModal')">로그인</button>
+    <button class="form-button secondary" onclick="showModal('signupModal')">회원가입</button>
+  </div>
+</div>
+
+<!-- 로그인 모달 -->
+<div class="modal" id="loginModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="hideModal('loginModal')">&times;</button>
+    <div class="modal-header">
+      <h2>로그인</h2>
+      <p>Picflow에 오신 것을 환영합니다</p>
+    </div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label class="form-label" for="loginEmail">이메일</label>
+        <input type="email" id="loginEmail" class="form-input" required>
+        <div class="form-error" id="loginEmailError"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginPassword">비밀번호</label>
+        <input type="password" id="loginPassword" class="form-input" required>
+        <div class="form-error" id="loginPasswordError"></div>
+      </div>
+      <button type="submit" class="form-button">로그인</button>
+    </form>
+    <div class="form-switch">
+      <span>계정이 없으신가요? </span>
+      <button onclick="switchModal('loginModal', 'signupModal')">회원가입</button>
+    </div>
+  </div>
+</div>
+
+<!-- 회원가입 모달 -->
+<div class="modal" id="signupModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="hideModal('signupModal')">&times;</button>
+    <div class="modal-header">
+      <h2>회원가입</h2>
+      <p>Picflow에서 새로운 시작을 하세요</p>
+    </div>
+    <form id="signupForm">
+      <div class="form-group">
+        <label class="form-label" for="signupEmail">이메일</label>
+        <input type="email" id="signupEmail" class="form-input" required>
+        <div class="form-error" id="signupEmailError"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="signupUsername">사용자명</label>
+        <input type="text" id="signupUsername" class="form-input" required>
+        <div class="form-error" id="signupUsernameError"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="signupPassword">비밀번호</label>
+        <input type="password" id="signupPassword" class="form-input" required>
+        <div class="form-error" id="signupPasswordError"></div>
+        <small style="color: #8e8e8e; font-size: 12px;">8자 이상, 대소문자, 숫자, 특수문자 포함</small>
+      </div>
+      <button type="submit" class="form-button">회원가입</button>
+    </form>
+    <div class="form-switch">
+      <span>이미 계정이 있으신가요? </span>
+      <button onclick="switchModal('signupModal', 'loginModal')">로그인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 프로필 수정 모달 -->
+<div class="modal" id="profileModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="hideModal('profileModal')">&times;</button>
+    <div class="modal-header">
+      <h2>프로필 수정</h2>
+      <p>회원 정보를 수정하세요</p>
+    </div>
+    <form id="profileForm">
+      <div class="form-group">
+        <label class="form-label" for="profileUsername">사용자명</label>
+        <input type="text" id="profileUsername" class="form-input">
+        <div class="form-error" id="profileUsernameError"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="profileBio">자기소개</label>
+        <textarea id="profileBio" class="form-input form-textarea" placeholder="자신을 간단히 소개해주세요"></textarea>
+        <div class="form-error" id="profileBioError"></div>
+      </div>
+      <button type="submit" class="form-button">저장</button>
+    </form>
+  </div>
+</div>
+
+<!-- 메인 앱 컨테이너 -->
+<div class="app-container" id="appContainer">
+  <!-- 사이드 네비게이션 -->
+  <aside class="sidebar">
+    <div class="logo">Picflow</div>
+
+    <nav>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="#" class="nav-link active" data-page="home">
+            <i class="fas fa-home"></i>
+            <span>홈</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="search">
+            <i class="fas fa-search"></i>
+            <span>검색</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="profile">
+            <i class="fas fa-user"></i>
+            <span>프로필</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>로그아웃</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="profile-section">
+      <div class="profile-info" onclick="showModal('profileModal')">
+        <div class="profile-avatar" id="sidebarAvatar">P</div>
+        <div class="profile-details">
+          <h4 id="sidebarUsername">사용자</h4>
+          <p id="sidebarEmail">user@example.com</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="main-content">
+    <!-- 홈 페이지 -->
+    <div id="homePage" class="page-content active">
+      <header class="content-header">
+        <h1>홈</h1>
+        <p>팔로우하는 사용자들의 최신 게시물을 확인하세요</p>
+      </header>
+
+      <!-- 포스트 작성 영역 -->
+      <section class="create-post">
+        <div class="create-post-form">
+          <div class="create-post-header">
+            <div class="profile-avatar" id="createPostAvatar">P</div>
+            <div class="post-input-container">
+              <input type="text" id="postTitle" class="form-input" placeholder="제목을 입력하세요" style="margin-bottom: 12px;">
+              <textarea
+                      class="post-input"
+                      placeholder="무슨 생각을 하고 계신가요?"
+                      id="postContent"
+              ></textarea>
+
+              <!-- 이미지 미리보기 -->
+              <div class="image-preview" id="imagePreview">
+                <img id="previewImg" src="" alt="미리보기">
+                <button type="button" class="remove-image" onclick="removeImage()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="create-post-footer">
+            <div class="post-options">
+              <input type="file" id="imageFile" class="hidden-file-input" accept="image/*" onchange="previewImage(this)">
+              <button class="post-option" onclick="document.getElementById('imageFile').click()" title="사진 추가">
+                <i class="fas fa-image"></i>
+              </button>
+              <button class="post-option" title="이모지">
+                <i class="fas fa-smile"></i>
+              </button>
+            </div>
+            <button class="post-button" id="postBtn" onclick="createPost()">게시</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 피드 영역 -->
+      <section class="feed" id="feed">
+        <!-- 게시물들이 여기에 동적으로 추가됩니다 -->
+      </section>
+    </div>
+
+    <!-- 검색 페이지 -->
+    <div id="searchPage" class="page-content">
+      <header class="content-header">
+        <h1>검색</h1>
+        <p>사용자를 검색하고 팔로우하세요</p>
+      </header>
+
+      <div class="search-container">
+        <div class="search-form">
+          <input type="text" id="searchInput" class="search-input" placeholder="사용자명 또는 이메일 검색">
+          <button class="search-button" onclick="searchUsers()">검색</button>
+        </div>
+
+        <div class="search-results" id="searchResults">
+          <!-- 검색 결과가 여기에 표시됩니다 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 프로필 페이지 -->
+    <div id="profilePage" class="page-content">
+      <div class="profile-header">
+        <div class="profile-avatar-large" id="profileAvatarLarge">P</div>
+        <div class="profile-name" id="profileName">사용자</div>
+        <div class="profile-bio" id="profileBioText">안녕하세요! Picflow를 사용하고 있습니다.</div>
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <span class="profile-stat-number" id="profilePostCount">0</span>
+            <span class="profile-stat-label">게시물</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-number" id="profileFollowerCount">0</span>
+            <span class="profile-stat-label">팔로워</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-number" id="profileFollowingCount">0</span>
+            <span class="profile-stat-label">팔로잉</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 내 게시물 목록 -->
+      <div class="feed" id="myPostsFeed">
+        <!-- 내 게시물들이 여기에 표시됩니다 -->
+      </div>
+    </div>
+  </main>
+
+  <!-- 하단 네비게이션 (모바일) -->
+  <nav class="bottom-nav">
+    <ul class="bottom-nav-list">
+      <li class="bottom-nav-item">
+        <a href="#" class="bottom-nav-link active" data-page="home">
+          <i class="fas fa-home"></i>
+          <span>홈</span>
+        </a>
+      </li>
+      <li class="bottom-nav-item">
+        <a href="#" class="bottom-nav-link" data-page="search">
+          <i class="fas fa-search"></i>
+          <span>검색</span>
+        </a>
+      </li>
+      <li class="bottom-nav-item">
+        <a href="#" class="bottom-nav-link" onclick="document.getElementById('imageFile').click()">
+          <i class="fas fa-plus-circle"></i>
+          <span>작성</span>
+        </a>
+      </li>
+      <li class="bottom-nav-item">
+        <a href="#" class="bottom-nav-link" data-page="profile">
+          <i class="fas fa-user"></i>
+          <span>프로필</span>
+        </a>
+      </li>
+      <li class="bottom-nav-item">
+        <a href="#" class="bottom-nav-link" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>로그아웃</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<script>
+  // 전역 변수
+  const API_BASE_URL = 'http://localhost:8080/api';
+  let currentUser = null;
+  let currentPage = 'home';
+  let authToken = localStorage.getItem('authToken');
+
+  // 초기화
+  document.addEventListener('DOMContentLoaded', function() {
+    if (authToken) {
+      loadUserProfile();
+      showApp();
+    } else {
+      showAuthContainer();
+    }
+
+    // 폼 이벤트 리스너
+    setupEventListeners();
+  });
+
+  function setupEventListeners() {
+    // 로그인 폼
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+    // 회원가입 폼
+    document.getElementById('signupForm').addEventListener('submit', handleSignup);
+
+    // 프로필 수정 폼
+    document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
+
+    // 네비게이션 클릭 이벤트
+    document.querySelectorAll('[data-page]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const page = this.getAttribute('data-page');
+        navigateToPage(page);
+      });
+    });
+
+    // 게시물 작성 엔터키 이벤트
+    document.getElementById('postContent').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && e.ctrlKey) {
+        createPost();
+      }
+    });
+
+    // 검색 엔터키 이벤트
+    document.getElementById('searchInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        searchUsers();
+      }
+    });
+  }
+
+  // 인증 관련 함수들
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+      showLoading(true);
+      clearFormErrors();
+
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        authToken = data.data.token;
+        localStorage.setItem('authToken', authToken);
+
+        currentUser = {
+          id: data.data.userId,
+          username: data.data.username,
+          email: email
+        };
+
+        hideModal('loginModal');
+        showApp();
+        showToast('로그인되었습니다!', 'success');
+      } else {
+        showFormError('loginEmailError', data.message);
+      }
+    } catch (error) {
+      console.error('로그인 오류:', error);
+      showToast('로그인 중 오류가 발생했습니다.', 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  async function handleSignup(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('signupEmail').value;
+    const username = document.getElementById('signupUsername').value;
+    const password = document.getElementById('signupPassword').value;
+
+    try {
+      showLoading(true);
+      clearFormErrors();
+
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, username, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        hideModal('signupModal');
+        showModal('loginModal');
+        showToast('회원가입이 완료되었습니다! 로그인해주세요.', 'success');
+
+        // 회원가입한 이메일을 로그인 폼에 자동 입력
+        document.getElementById('loginEmail').value = email;
+      } else {
+        showFormError('signupEmailError', data.message);
+      }
+    } catch (error) {
+      console.error('회원가입 오류:', error);
+      showToast('회원가입 중 오류가 발생했습니다.', 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  async function handleProfileUpdate(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('profileUsername').value;
+    const bio = document.getElementById('profileBio').value;
+
+    try {
+      showLoading(true);
+
+      const response = await fetch(`${API_BASE_URL}/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ username, bio })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        currentUser.username = data.data.username;
+        updateUserProfileUI();
+        hideModal('profileModal');
+        showToast('프로필이 수정되었습니다!', 'success');
+      } else {
+        showToast(data.message, 'error');
+      }
+    } catch (error) {
+      console.error('프로필 수정 오류:', error);
+      showToast('프로필 수정 중 오류가 발생했습니다.', 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem('authToken');
+    authToken = null;
+    currentUser = null;
+    showAuthContainer();
+    showToast('로그아웃되었습니다.', 'success');
+  }
+
+  // UI 관련 함수들
+  function showApp() {
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('appContainer').classList.add('show');
+    loadUserProfile();
+    loadFeed();
+  }
+
+  function showAuthContainer() {
+    document.getElementById('authContainer').style.display = 'flex';
+    document.getElementById('appContainer').classList.remove('show');
+  }
+
+  function navigateToPage(page) {
+    // 모든 페이지 숨기기
+    document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+
+    // 모든 네비게이션 링크 비활성화
+    document.querySelectorAll('.nav-link, .bottom-nav-link').forEach(link => link.classList.remove('active'));
+
+    // 선택한 페이지 표시
+    document.getElementById(page + 'Page').classList.add('active');
+
+    // 해당 네비게이션 링크 활성화
+    document.querySelectorAll(`[data-page="${page}"]`).forEach(link => link.classList.add('active'));
+
+    currentPage = page;
+
+    // 페이지별 데이터 로드
+    switch(page) {
+      case 'home':
+        loadFeed();
+        break;
+      case 'profile':
+        loadMyProfile();
+        break;
+      case 'search':
+        document.getElementById('searchResults').innerHTML = '';
+        break;
+    }
+  }
+
+  async function loadUserProfile() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/profile`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        currentUser = data.data;
+        updateUserProfileUI();
+      }
+    } catch (error) {
+      console.error('프로필 로드 오류:', error);
+    }
+  }
+
+  function updateUserProfileUI() {
+    if (!currentUser) return;
+
+    const avatar = currentUser.username.charAt(0).toUpperCase();
+
+    // 사이드바 업데이트
+    document.getElementById('sidebarAvatar').textContent = avatar;
+    document.getElementById('sidebarUsername').textContent = currentUser.username;
+    document.getElementById('sidebarEmail').textContent = currentUser.email;
+
+    // 프로필 페이지 업데이트
+    document.getElementById('profileAvatarLarge').textContent = avatar;
+    document.getElementById('profileName').textContent = currentUser.username;
+    document.getElementById('profileBioText').textContent = currentUser.bio || '자기소개가 없습니다.';
+
+    // 게시물 작성 아바타 업데이트
+    document.getElementById('createPostAvatar').textContent = avatar;
+
+    // 프로필 수정 폼 업데이트
+    document.getElementById('profileUsername').value = currentUser.username;
+    document.getElementById('profileBio').value = currentUser.bio || '';
+  }
+
+  // 게시물 관련 함수들
+  async function createPost() {
+    const title = document.getElementById('postTitle').value.trim();
+    const content = document.getElementById('postContent').value.trim();
+    const imageFile = document.getElementById('imageFile').files[0];
+
+    if (!title || !content) {
+      showToast('제목과 내용을 모두 입력해주세요.', 'error');
+      return;
+    }
+
+    try {
+      showLoading(true);
+
+      const formData = new FormData();
+
+      // JSON 데이터를 Blob으로 변환하여 추가
+      const postData = {
+        title: title,
+        content: content
+      };
+
+      formData.append('post', new Blob([JSON.stringify(postData)], {
+        type: 'application/json'
+      }));
+
+      // 이미지 파일이 있으면 추가
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/posts`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // 폼 초기화
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postContent').value = '';
+        document.getElementById('imageFile').value = '';
+        removeImage();
+
+        showToast('게시물이 작성되었습니다!', 'success');
+        loadFeed(); // 피드 새로고침
+      } else {
+        showToast(data.message, 'error');
+      }
+    } catch (error) {
+      console.error('게시물 작성 오류:', error);
+      showToast('게시물 작성 중 오류가 발생했습니다.', 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  async function loadFeed() {
+    try {
+      showLoading(true);
+
+      const response = await fetch(`${API_BASE_URL}/posts?page=0&size=10`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        renderPosts(data.data.posts, 'feed');
+      }
+    } catch (error) {
+      console.error('피드 로드 오류:', error);
+      showToast('피드를 불러오는 중 오류가 발생했습니다.', 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  async function loadMyProfile() {
+    if (!currentUser) return;
+
+    try {
+      // 내 게시물 로드
+      const response = await fetch(`${API_BASE_URL}/posts/user/${currentUser.id}?page=0&size=10`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        renderPosts(data.data.posts, 'myPostsFeed');
+
+        // 게시물 수 업데이트
+        document.getElementById('profilePostCount').textContent = data.data.totalElements;
+      }
+    } catch (error) {
+      console.error('내 프로필 로드 오류:', error);
+    }
+  }
+
+  function renderPosts(posts, containerId) {
+    const container = document.getElementById(containerId);
+
+    if (!posts || posts.length === 0) {
+      container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-image"></i>
+                        <h3>게시물이 없습니다</h3>
+                        <p>첫 번째 게시물을 작성해보세요!</p>
+                    </div>
+                `;
+      return;
+    }
+
+    container.innerHTML = posts.map(post => `
+                <article class="post" data-post-id="${post.postId}">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="profile-avatar">${post.author.charAt(0).toUpperCase()}</div>
+                            <div class="post-author-info">
+                                <h4>${post.author}</h4>
+                                <p>${formatDate(post.createdAt)}</p>
+                            </div>
+                        </div>
+                        ${post.authorId === currentUser?.id ? `
+                            <button class="post-menu" onclick="togglePostMenu(${post.postId})">
+                                <i class="fas fa-ellipsis-h"></i>
+                                <div class="post-menu-dropdown" id="menu-${post.postId}">
+                                    <button class="post-menu-item" onclick="editPost(${post.postId})">수정</button>
+                                    <button class="post-menu-item delete" onclick="deletePost(${post.postId})">삭제</button>
+                                </div>
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    <div class="post-content">
+                        <div class="post-title">${post.title}</div>
+                        <p class="post-text">${post.content}</p>
+                        ${post.imageUrl ? `<img src="${post.imageUrl}" alt="게시물 이미지" class="post-image">` : ''}
+                    </div>
+
+                    <div class="post-footer">
+                        <div class="post-actions">
+                            <button class="post-action" onclick="toggleLike(${post.postId})">
+                                <i class="far fa-heart"></i>
+                                <span>${post.likeCount}</span>
+                            </button>
+                            <button class="post-action" onclick="toggleComments(${post.postId})">
+                                <i class="far fa-comment"></i>
+                                <span>${post.commentCount}</span>
+                            </button>
+                        </div>
+                        <div class="post-stats">
+                            조회 ${Math.floor(Math.random() * 1000)}회
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+  }
+
+  async function deletePost(postId) {
+    if (!confirm('정말로 이 게시물을 삭제하시겠습니까?')) return;
+
+    try {
+      showLoading(true);
+
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        showToast('게시물이 삭제되었습니다.', 'success');
+        loadFeed();
+        if (currentPage === 'profile') {
+          loadMyProfile();
+        }
+      } else {
+        const data = await response.json();
+        showToast(data.message, 'error');
+      }
+    } catch (error) {
+      console.error('게시물 삭제 오류:', error);
+      showToast('게시물 삭제 중 오류가 발생했습니다.', 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  async function toggleLike(postId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}/likes`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        // 좋아요 버튼 UI 업데이트
+        const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+        const likeButton = postElement.querySelector('.post-action');
+        const likeIcon = likeButton.querySelector('i');
+        const likeCount = likeButton.querySelector('span');
+
+        if (likeButton.classList.contains('liked')) {
+          likeButton.classList.remove('liked');
+          likeIcon.className = 'far fa-heart';
+          likeCount.textContent = parseInt(likeCount.textContent) - 1;
+        } else {
+          likeButton.classList.add('liked');
+          likeIcon.className = 'fas fa-heart';
+          likeCount.textContent = parseInt(likeCount.textContent) + 1;
+        }
+      }
+    } catch (error) {
+      console.error('좋아요 오류:', error);
+    }
+  }
+
+  function togglePostMenu(postId) {
+    const menu = document.getElementById(`menu-${postId}`);
+    const isVisible = menu.classList.contains('show');
+
+    // 모든 메뉴 닫기
+    document.querySelectorAll('.post-menu-dropdown').forEach(m => m.classList.remove('show'));
+
+    // 클릭한 메뉴만 토글
+    if (!isVisible) {
+      menu.classList.add('show');
+    }
+  }
+
+  // 검색 관련 함수들
+  async function searchUsers() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) return;
+
+    try {
+      showLoading(true);
+
+      const response = await fetch(`${API_BASE_URL}/users/search/username?username=${encodeURIComponent(query)}&page=0&size=10`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        renderSearchResults(data.data.users);
+      } else {
+        showToast('검색 중 오류가 발생했습니다.', 'error');
+      }
+    } catch (error) {
+      console.error('사용자 검색 오류:', error);
+      showToast('검색 중 오류가 발생했습니다.', 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function renderSearchResults(users) {
+    const container = document.getElementById('searchResults');
+
+    if (!users || users.length === 0) {
+      container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>검색 결과가 없습니다</h3>
+                        <p>다른 키워드로 검색해보세요.</p>
+                    </div>
+                `;
+      return;
+    }
+
+    container.innerHTML = users.map(user => `
+                <div class="user-result">
+                    <div class="user-info">
+                        <div class="profile-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                        <div class="profile-details">
+                            <h4>${user.username}</h4>
+                            <p>${user.bio || '자기소개가 없습니다.'}</p>
+                        </div>
+                    </div>
+                    <button class="follow-button" onclick="toggleFollow(${user.userId}, this)">
+                        팔로우
+                    </button>
+                </div>
+            `).join('');
+  }
+
+  async function toggleFollow(userId, button) {
+    try {
+      const isFollowing = button.classList.contains('following');
+      const method = isFollowing ? 'DELETE' : 'POST';
+
+      const response = await fetch(`${API_BASE_URL}/follows/${userId}`, {
+        method: method,
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        if (isFollowing) {
+          button.classList.remove('following');
+          button.textContent = '팔로우';
+          showToast('언팔로우했습니다.', 'success');
+        } else {
+          button.classList.add('following');
+          button.textContent = '팔로잉';
+          showToast('팔로우했습니다!', 'success');
+        }
+      } else {
+        const data = await response.json();
+        showToast(data.message, 'error');
+      }
+    } catch (error) {
+      console.error('팔로우 오류:', error);
+      showToast('팔로우 중 오류가 발생했습니다.', 'error');
+    }
+  }
+
+  // 이미지 관련 함수들
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      // 파일 크기 검증 (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('파일 크기는 10MB 이하여야 합니다.', 'error');
+        input.value = '';
+        return;
+      }
+
+      // 파일 타입 검증
+      if (!file.type.startsWith('image/')) {
+        showToast('이미지 파일만 업로드 가능합니다.', 'error');
+        input.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('imagePreview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function removeImage() {
+    document.getElementById('imageFile').value = '';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('previewImg').src = '';
+  }
+
+  // 유틸리티 함수들
+  function showLoading(show) {
+    document.getElementById('loading').style.display = show ? 'flex' : 'none';
+  }
+
+  function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast ${type}`;
+    toast.classList.add('show');
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+
+  function showModal(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+  }
+
+  function hideModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    clearFormErrors();
+  }
+
+  function switchModal(fromModal, toModal) {
+    hideModal(fromModal);
+    showModal(toModal);
+  }
+
+  function showFormError(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+
+    const input = errorElement.previousElementSibling;
+    if (input) {
+      input.classList.add('error');
+    }
+  }
+
+  function clearFormErrors() {
+    document.querySelectorAll('.form-error').forEach(error => {
+      error.style.display = 'none';
+      error.textContent = '';
+    });
+
+    document.querySelectorAll('.form-input').forEach(input => {
+      input.classList.remove('error');
+    });
+  }
+
+  function formatDate(dateString) {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) {
+      return '방금 전';
+    } else if (diffInSeconds < 3600) {
+      return `${Math.floor(diffInSeconds / 60)}분 전`;
+    } else if (diffInSeconds < 86400) {
+      return `${Math.floor(diffInSeconds / 3600)}시간 전`;
+    } else if (diffInSeconds < 604800) {
+      return `${Math.floor(diffInSeconds / 86400)}일 전`;
+    } else {
+      return date.toLocaleDateString('ko-KR');
+    }
+  }
+
+  // 외부 클릭으로 메뉴 닫기
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.post-menu')) {
+      document.querySelectorAll('.post-menu-dropdown').forEach(menu => {
+        menu.classList.remove('show');
+      });
+    }
+  });
+
+  // ESC 키로 모달 닫기
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal').forEach(modal => {
+        if (modal.style.display === 'flex') {
+          modal.style.display = 'none';
+        }
+      });
+    }
+  });
+
+  // 무한 스크롤 (선택사항)
+  window.addEventListener('scroll', function() {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+      // 더 많은 게시물 로드 로직
+      // loadMorePosts();
+    }
+  });
+</script>
+</body>
+</html>
